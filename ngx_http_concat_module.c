@@ -31,6 +31,8 @@ static char *ngx_http_concat_merge_loc_conf(ngx_conf_t *cf, void *parent,
 
 static ngx_str_t  ngx_http_concat_default_types[] = {
     ngx_string("application/x-javascript"),
+    ngx_string("application/javascript"),
+    ngx_string("text/javascript"),
     ngx_string("text/css"),
     ngx_null_string
 };
@@ -411,6 +413,11 @@ ngx_http_concat_handler(ngx_http_request_t *r)
     r->headers_out.status = NGX_HTTP_OK;
     r->headers_out.content_length_n = length;
     r->headers_out.last_modified_time = last_modified;
+
+    if (ngx_http_set_etag(r) != NGX_OK) {
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
+    ngx_http_weak_etag(r);
 
     if (b == NULL) {
         r->header_only = 1;
